@@ -21,10 +21,10 @@ Useful snippets / tools for using WSL2 as a development environment
 
     ```sh
     # Start systemd if not started
-    _=$(sudo /usr/sbin/daemonize -l "${HOME}/.systemd.lock" -p "${HOME}/.systemd.pid" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd 2>&1)
+    _=$(sudo /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd 2>&1)    # alias for running systemctl
     
     # alias for running systemctl
-    alias wsl2-systemctl="sudo /usr/bin/nsenter -t "$(<"${HOME}/.systemd.pid")" -m -p sudo -u $USER systemctl"
+    alias wsl2-systemctl="sudo /usr/bin/nsenter -t "$(pgrep -x systemd)" -m -p systemctl"
     ```
 
 4. Restart shell (or `exec $SHELL`)
