@@ -26,6 +26,8 @@ Useful snippets / tools for using WSL2 as a development environment
     # alias for running systemctl
     alias systemctl="sudo /usr/bin/nsenter -t "$(pgrep -x systemd)" -m -p systemctl"
     ```
+    
+    > You shouldn't need to run `systemctl` as root/sudo
 
 4. Restart shell (or `exec $SHELL`)
 
