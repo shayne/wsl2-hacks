@@ -24,12 +24,10 @@ Useful snippets / tools for using WSL2 as a development environment
     _=$(sudo /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd 2>&1)    # alias for running systemctl
     
     # alias for running systemctl
-    alias wsl2-systemctl="sudo /usr/bin/nsenter -t "$(pgrep -x systemd)" -m -p systemctl"
+    alias systemctl="sudo /usr/bin/nsenter -t "$(pgrep -x systemd)" -m -p systemctl"
     ```
 
 4. Restart shell (or `exec $SHELL`)
-
-> **NOTE:** *Instead of running `systemctl` directly, use the `wsl2-systemctl` alias*
 
 5. Create `/etc/rc.local` (optional)
 
