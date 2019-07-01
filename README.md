@@ -19,9 +19,9 @@ Useful snippets / tools for using WSL2 as a development environment
 
     ```sh
     # Start systemd if not started
-    /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd
+    /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd 2>/dev/null
     # Enter systemd namespace
-    exec /usr/bin/nsenter -t "$(pgrep -x systemd)" -m -p /bin/login -f <YOURUSER>
+    exec /usr/bin/nsenter -t "$(pgrep -xo systemd)" -m -p /bin/login -p -f <YOURUSER>
     ```
 
 3. Exit out of / close the WSL2 shell
