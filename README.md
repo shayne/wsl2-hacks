@@ -83,3 +83,17 @@ If devtools are watching for file changes, the default is too low.
 
 sysctl -w fs.inotify.max_user_watches=524288
 ```
+
+---
+
+**Open MS Terminal to home directory by default**
+
+Open your MS Terminal configuration <kbd>Ctrl+,</kbd>
+
+Find the `"commandLine":...` config for the WSL profile.
+
+Change to something like:
+
+```json
+"commandline": "wsl.exe ~ -d Ubuntu-18.04",
+```
