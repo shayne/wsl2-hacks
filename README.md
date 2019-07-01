@@ -11,25 +11,38 @@ Useful snippets / tools for using WSL2 as a development environment
     $ sudo apt install dbus policykit-1 daemonize
     ```
 
-2. Run `sudo visudo`, add to bottom:
+2. Create a `.bash_profile` for the `root` user
 
-    ```
-    %sudo ALL=(ALL) NOPASSWD: /usr/bin/nsenter,/usr/sbin/daemonize
-    ```
-
-3. Edit `~/.bashrc` (or respective shell config), add to bottom:
+    `$ sudo editor ~root/.bash_profile`
+    
+    Add the following, be sure to replace `<YOURUSER>` with your WSL2 Linux username
 
     ```sh
     # Start systemd if not started
-    _=$(sudo /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd 2>&1)
+    /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd
+    # Enter systemd namespace
+    exec /usr/bin/nsenter -t "$(pgrep -x systemd)" -m -p /bin/login -f <YOURUSER>
+    ```
+
+3. Exit out of / close the WSL2 shell
+
+    In a PowerShell terminal run:
     
-    # alias for running systemctl
-    alias systemctl="sudo /usr/bin/nsenter -t "$(pgrep -x systemd)" -m -p systemctl"
+    ```
+    > wsl --shutdown
+    > lxrun.exe /setdefaultuser root
     ```
     
-    > You shouldn't need to run `systemctl` as root/sudo
+4. Re-open WSL2
 
-4. Restart shell (or `exec $SHELL`)
+    You should be logged in as your normal user and `systemd` should be running
+    
+    You can test by running the following in WSL2:
+    
+    ```sh
+    $ systemctl is-active dbus
+    active
+    ```
 
 5. Create `/etc/rc.local` (optional)
 
