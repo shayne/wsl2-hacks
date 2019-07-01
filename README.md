@@ -30,7 +30,7 @@ Useful snippets / tools for using WSL2 as a development environment
     
     ```
     > wsl --shutdown
-    > lxrun.exe /setdefaultuser root
+    > ubuntu1804.exe config --default-user root
     ```
     
 4. Re-open WSL2
