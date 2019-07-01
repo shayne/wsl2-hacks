@@ -50,6 +50,9 @@ Useful snippets / tools for using WSL2 as a development environment
     exit 0
     ```
 
+`/etc/rc.local` is only run on "boot", so only when you first access WSL2 (or it's shutdown due to inactivity/no-processes).
+To test you can shutdown WSL via PowerShell/CMD `wsl --shutdown` then start it back up with `wsl`.
+
 ---
 
 **Access localhost ports from Windows**
