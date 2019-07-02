@@ -7,7 +7,7 @@ Useful snippets / tools for using WSL2 as a development environment
 
 I've done a few methods that have had various levels of success. My goal was to make it feel seamless for my workflow and have commands work as expected. What's below is the current version of the setup I use. It allows me to use the MS Terminal as well as VSCode's Remote WSL plugin.
 
-With this setup your shells will be able to run `systemctl` commands (without `sudo` or `root`), have auto-starting services, as well as be able to run [snaps](https://tutorials.ubuntu.com/tutorial/basic-snap-usage).
+With this setup your shells will be able to run `systemctl` commands, have auto-starting services, as well as be able to run [snaps](https://tutorials.ubuntu.com/tutorial/basic-snap-usage).
 
 1. Install deps
 
