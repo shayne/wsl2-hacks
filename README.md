@@ -44,7 +44,7 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     # get pid of systemd
     SYSTEMD_PID=$(pgrep -xo systemd)
 
-    # if we're already in the systemdd environment
+    # if we're already in the systemd environment
     if [[ "${SYSTEMD_PID}" -eq "1" ]]; then
         exec /bin/bash "$@"
     fi
