@@ -3,7 +3,12 @@ Useful snippets / tools for using WSL2 as a development environment
 
 ---
 
-**Auto-start/services** (systemd)
+**Auto-start/services** (`systemd` and `snap` support)
+
+I've done a few methods that have had various levels of success. My goal was to make it feel seamless for my workflow and have commands work as expected. What's below is the current version of the setup I use. It allows me to use the MS Terminal as well as VSCode's Remote WSL plugin.
+
+With this setup your shells will be able to run `systemctl` commands (without `sudo` or `root`), have auto-starting services, as well as be able to run [snaps](https://tutorials.ubuntu.com/tutorial/basic-snap-usage).
+
 1. Install deps
 
     ```shell
@@ -11,20 +16,68 @@ Useful snippets / tools for using WSL2 as a development environment
     $ sudo apt install dbus policykit-1 daemonize
     ```
 
-2. Create a `.bash_profile` for the `root` user
+2. Create a fake-`bash`
 
-    `$ sudo editor ~root/.bash_profile`
+    This fake shell will intercept calls to `wsl.exe bash ...` and forward them to a real bash running in the right environment for `systemd`. If this sounds like a hack-- well, it is. However, I've tested various workflows and use this daily. That being said, your mileage may vary.
+
+    ```
+    $ sudo touch /usr/bin/bash
+    $ sudo chmod +x /usr/bin/bash
+    $ sudo editor /usr/bin/bash
+    ```
     
     Add the following, be sure to replace `<YOURUSER>` with your WSL2 Linux username
 
     ```sh
-    # Start systemd if not started
+    #!/bin/bash
+    # your WSL2 username
+    USER="<YOURUSER>"
+
+    if [[ "${PWD}" = "/root" ]]; then
+        cd $(getent passwd "${USER}" | cut -d: -f6)
+    fi
+
+    # get pid of systemd
+    SYSTEMD_PID=$(pgrep -xo systemd)
+
+    if [[ "${SYSTEMD_PID}" -eq "1" ]]; then
+        exec /bin/bash "$@"
+    fi
+
+    # start systemd if not started
     /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd 2>/dev/null
-    # Enter systemd namespace
-    exec /usr/bin/nsenter -t "$(pgrep -xo systemd)" -m -p /bin/login -p -f <YOURUSER>
+    # wait for systemd to start
+    while [[ "${SYSTEMD_PID}" = "" ]]; do
+        sleep 0.05
+        SYSTEMD_PID=$(pgrep -xo systemd)
+    done
+    # enter systemd namespace
+    exec /usr/bin/nsenter -t "$(pgrep -xo systemd)" -m -p --wd="${PWD}" /usr/bin/sudo -E -H -u "${USER}" PATH="${PATH}" /bin/bash "$@" 
     ```
 
-3. Exit out of / close the WSL2 shell
+3. Set the fake-`bash` as our `root` user's shell
+
+    We need `root` level permission to get `systemd` setup and enter the environment. The way I went about solving this is to
+    have WSL2 default to the `root` user and when `wsl.exe` is executed the fake-`bash` will do the right thing.
+    
+    The next step in getting this working is to change the default shell for our `root` user.
+    
+    Edit the `/etc/passwd` file:
+    
+    `$ sudo editor /etc/passwd`
+    
+    Find the line starting with `root:`, it should be the first line.
+    Change it to:
+    
+    `root:x:0:0:root:/root:/usr/bin/bash`
+    
+    *Note the `/usr/bin/bash` here, slight difference*
+    
+    Save and close this file.
+
+4. Exit out of / close the WSL2 shell
+
+    The next step is to shutdown WSL2 and to change the default user to `root`.
 
     In a PowerShell terminal run:
     
@@ -33,8 +86,9 @@ Useful snippets / tools for using WSL2 as a development environment
     > ubuntu1804.exe config --default-user root
     ```
     
-4. Re-open WSL2
+5. Re-open WSL2
 
+    Everything should be in place. Fire up WSL via the MS Terminal or just `wsl.exe`.
     You should be logged in as your normal user and `systemd` should be running
     
     You can test by running the following in WSL2:
@@ -44,7 +98,7 @@ Useful snippets / tools for using WSL2 as a development environment
     active
     ```
 
-5. Create `/etc/rc.local` (optional)
+6. Create `/etc/rc.local` (optional)
 
     If you want to run certain commands when the WSL2 VM starts up, this is a useful file that's automatically ran by systemd.
     
