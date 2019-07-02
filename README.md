@@ -56,8 +56,8 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
         SYSTEMD_PID=$(pgrep -xo systemd)
     done
     # enter systemd namespace
-    exec /usr/bin/nsenter -t "$(pgrep -xo systemd)" -m -p --wd="${PWD}" -S "${UUID}" -G "${UGID}" env USER=${UNAME} LOGNAME=${UNAME} HOME="${UHOME}" /bin/bash "$@"
-```
+    exec /usr/bin/nsenter -t "$(pgrep -xo systemd)" -m -p --wd="${PWD}" /usr/bin/sudo -E -H -u "${UNAME}" PATH="${PATH}" /bin/bash "$@"
+    ```
 
 3. Set the fake-`bash` as our `root` user's shell
 
