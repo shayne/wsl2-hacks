@@ -31,10 +31,14 @@ With this setup your shells will be able to run `systemctl` commands (without `s
     ```sh
     #!/bin/bash
     # your WSL2 username
-    USER="<YOURUSER>"
+    UNAME="<YOURUSER>"
+
+    UUID=$(id -u "${UNAME}")
+    UGID=$(id -g "${UNAME}")
+    UHOME=$(getent passwd "${UNAME}" | cut -d: -f6)
 
     if [[ "${PWD}" = "/root" ]]; then
-        cd $(getent passwd "${USER}" | cut -d: -f6)
+        cd "${UHOME}"
     fi
 
     # get pid of systemd
@@ -52,8 +56,8 @@ With this setup your shells will be able to run `systemctl` commands (without `s
         SYSTEMD_PID=$(pgrep -xo systemd)
     done
     # enter systemd namespace
-    exec /usr/bin/nsenter -t "$(pgrep -xo systemd)" -m -p --wd="${PWD}" /usr/bin/sudo -E -H -u "${USER}" PATH="${PATH}" /bin/bash "$@" 
-    ```
+    exec /usr/bin/nsenter -t "$(pgrep -xo systemd)" -m -p --wd="${PWD}" -S "${UUID}" -G "${UGID}" env USER=${UNAME} LOGNAME=${UNAME} HOME="${UHOME}" /bin/bash "$@"
+```
 
 3. Set the fake-`bash` as our `root` user's shell
 
