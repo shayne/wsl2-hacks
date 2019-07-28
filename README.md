@@ -175,12 +175,12 @@ Change to something like:
 **Copy current IP of WSL2 into Windows clipboard** (optionally with port 3000 here):
 
 ```
-ip addr | grep eth0 | grep inet | awk '{print $2}' | awk -F '/' '{print $1}' | awk '{printf "%s:3000", $0}' | clip.exe
+hostname -I | awk '{print $1}' | awk '{printf "%s:3000", $0}' | clip.exe
 ```
 
 Alternatively, put it in a file, for example `copy_ip.sh`, make it executable with `chmod +x copy_ip.sh` and you can get the IP any time with `./copy_ip.sh`: 
 
 ```
 #!/bin/bash
-ip addr | grep eth0 | grep inet | awk '{print $2}' | awk -F '/' '{print $1}' | awk '{printf "%s:3000", $0}' | clip.exe
+hostname -I | awk '{print $1}' | awk '{printf "%s:3000", $0}' | clip.exe
 ```
