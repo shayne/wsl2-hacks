@@ -38,6 +38,10 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     UHOME=$(getent passwd "${UNAME}" | cut -d: -f6)
     USHELL=$(getent passwd "${UNAME}" | cut -d: -f7)
 
+    if [[ "${BASH_ARGC}" > 0 && "${BASH_ARGV[1]}" != "-c" ]]; then
+        USHELL=/bin/bash
+    fi
+
     if [[ "${PWD}" = "/root" ]]; then
         cd "${UHOME}"
     fi
@@ -51,14 +55,15 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     fi
 
     # start systemd if not started
-    /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd 2>/dev/null
+    /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd --system-unit=basic.target 2>/dev/null
     # wait for systemd to start
     while [[ "${SYSTEMD_PID}" = "" ]]; do
         sleep 0.05
         SYSTEMD_PID=$(pgrep -xo systemd)
     done
+
     # enter systemd namespace
-    exec /usr/bin/nsenter -t "$(pgrep -xo systemd)" -m -p --wd="${PWD}" /sbin/runuser -s "${USHELL}" "${UNAME}" -- "${@}"
+    exec /usr/bin/nsenter -t "${SYSTEMD_PID}" -m -p --wd="${PWD}" /sbin/runuser -s "${USHELL}" "${UNAME}" -- "${@}"
     ```
 
 3. Set the fake-`bash` as our `root` user's shell
