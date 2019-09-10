@@ -38,7 +38,7 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     UHOME=$(getent passwd "${UNAME}" | cut -d: -f6)
     USHELL=$(getent passwd "${UNAME}" | cut -d: -f7)
 
-    if [[ "${BASH_ARGC}" > 0 && "${BASH_ARGV[1]}" != "-c" ]]; then
+    if [[ -p /dev/stdin || "${BASH_ARGC}" > 0 && "${BASH_ARGV[1]}" != "-c" ]]; then
         USHELL=/bin/bash
     fi
 
