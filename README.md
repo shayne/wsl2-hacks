@@ -134,6 +134,7 @@ To test you can shutdown WSL via PowerShell/CMD `wsl --shutdown` then start it b
 ---
 
 **Access localhost ports from Windows**
+**NOTE: No longer needed as of build 18945**
 
 Many development servers default to binding to `127.0.0.1` or `localhost`. It can be cumbersome and frustrating to get it to bind to `0.0.0.0` to make it accessible via Windows using the IP of the WSL2 VM.
 
