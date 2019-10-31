@@ -175,3 +175,17 @@ Change to something like:
 ```json
 "commandline": "wsl.exe ~ -d Ubuntu-18.04",
 ```
+
+
+**Copy current IP of WSL2 into Windows clipboard** (optionally with port 3000 here):
+
+```
+hostname -I | awk '{print $1}' | awk '{printf "%s:3000", $0}' | clip.exe
+```
+
+Alternatively, put it in a file, for example `copy_ip.sh`, make it executable with `chmod +x copy_ip.sh` and you can get the IP any time with `./copy_ip.sh`: 
+
+```
+#!/bin/bash
+hostname -I | awk '{print $1}' | awk '{printf "%s:3000", $0}' | clip.exe
+```
