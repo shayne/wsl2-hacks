@@ -1,6 +1,6 @@
-# wsl2-hacks
+# wsl2-hacks - Updated for Ubuntu 20.04 / 20.10
 Useful snippets / tools for using WSL2 as a development environment
-
+Updated based on issue #7 guidance from '@scotte' and '@JohnTasto'
 ---
 
 **Auto-start/services** (`systemd` and `snap` support)
@@ -21,9 +21,9 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     This fake shell will intercept calls to `wsl.exe bash ...` and forward them to a real bash running in the right environment for `systemd`. If this sounds like a hack-- well, it is. However, I've tested various workflows and use this daily. That being said, your mileage may vary.
 
     ```
-    $ sudo touch /usr/bin/bash
-    $ sudo chmod +x /usr/bin/bash
-    $ sudo editor /usr/bin/bash
+    $ sudo touch /usr/local/bin/wsl2hack
+    $ sudo chmod +x /usr/local/bin/wsl2hack
+    $ sudo editor /usr/local/bin/wsl2hack
     ```
     
     Add the following, be sure to replace `<YOURUSER>` with your WSL2 Linux username
@@ -54,16 +54,26 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
         exec "${USHELL}" "$@"
     fi
 
-    # start systemd if not started
-    /usr/sbin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd --system-unit=basic.target 2>/dev/null
+    if [[ -z ${SYSTEMD_PID} ]]; then
+    # start systemd
+    /usr/bin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd --system-unit=basic.target
+
     # wait for systemd to start
-    while [[ "${SYSTEMD_PID}" = "" ]]; do
-        sleep 0.05
+    retries=50
+    while [[ -z ${SYSTEMD_PID} && $retries -ge 0 ]]; do
+        (( retries-- ))
+        sleep .1
         SYSTEMD_PID=$(pgrep -xo systemd)
     done
 
+    if [[ $retries -lt 0 ]]; then
+        >&2 echo "Systemd timed out; aborting."
+        exit 1
+    fi
+
     # enter systemd namespace
     exec /usr/bin/nsenter -t "${SYSTEMD_PID}" -m -p --wd="${PWD}" /sbin/runuser -s "${USHELL}" "${UNAME}" -- "${@}"
+
     ```
 
 3. Set the fake-`bash` as our `root` user's shell
@@ -75,14 +85,15 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     
     Edit the `/etc/passwd` file:
     
-    `$ sudo editor /etc/passwd`
+    `$ vipw`
+    `$ vipw -s`
     
     Find the line starting with `root:`, it should be the first line.
-    Change it to:
+    Add a line:
     
-    `root:x:0:0:root:/root:/usr/bin/bash`
+    `rootwsl:x:0:0:root:/root:/usr/local/bin/wsl2hack`
     
-    *Note the `/usr/bin/bash` here, slight difference*
+    *Never replace `/usr/bin/bash` as it is an actual binary in Ubuntu 20.04/20.10*
     
     Save and close this file.
 
@@ -94,7 +105,7 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     
     ```
     > wsl --shutdown
-    > ubuntu1804.exe config --default-user root
+    > ubuntu2004.exe config --default-user root
     ```
     
 5. Re-open WSL2
