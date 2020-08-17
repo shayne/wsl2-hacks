@@ -25,7 +25,7 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     $ sudo chmod +x /usr/local/bin/wsl2hack
     $ sudo editor /usr/local/bin/wsl2hack
     ```
-    
+        
     Add the following, be sure to replace `<YOURUSER>` with your WSL2 Linux username
 
     ```sh
@@ -55,22 +55,23 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     fi
 
     if [[ -z ${SYSTEMD_PID} ]]; then
-    # start systemd
-    /usr/bin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd --system-unit=basic.target
+        # start systemd
+        /usr/bin/daemonize -l "${HOME}/.systemd.lock" /usr/bin/unshare -fp --mount-proc /lib/systemd/systemd --system-unit=basic.target
 
-    # wait for systemd to start
-    retries=50
-    while [[ -z ${SYSTEMD_PID} && $retries -ge 0 ]]; do
-        (( retries-- ))
-        sleep .1
-        SYSTEMD_PID=$(pgrep -xo systemd)
-    done
+        # wait for systemd to start
+        retries=50
+        while [[ -z ${SYSTEMD_PID} && $retries -ge 0 ]]; do
+            (( retries-- ))
+                sleep .1
+                SYSTEMD_PID=$(pgrep -xo systemd)
+        done
 
-    if [[ $retries -lt 0 ]]; then
-        >&2 echo "Systemd timed out; aborting."
-        exit 1
+        if [[ $retries -lt 0 ]]; then
+            >&2 echo "Systemd timed out; aborting."
+            exit 1
+        fi
     fi
-
+    
     # enter systemd namespace
     exec /usr/bin/nsenter -t "${SYSTEMD_PID}" -m -p --wd="${PWD}" /sbin/runuser -s "${USHELL}" "${UNAME}" -- "${@}"
 
@@ -86,6 +87,7 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     Edit the `/etc/passwd` file:
     
     `$ vipw`
+    
     `$ vipw -s`
     
     Find the line starting with `root:`, it should be the first line.
@@ -96,6 +98,8 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     *Never replace `/usr/bin/bash` as it is an actual binary in Ubuntu 20.04/20.10*
     
     Save and close this file.
+    
+    Make sure to update the primary passwd file *and* the shadow passwd file.
 
 4. Exit out of / close the WSL2 shell
 
