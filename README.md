@@ -62,8 +62,16 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
         SYSTEMD_PID=$(pgrep -xo systemd)
     done
 
+    # export WSL variables
+    export WINPATH="$(echo "$PATH"|grep -o ':/mnt/c.*$'|sed 's!^:!!')"
+    RUNOPTS=""
+    RUNOPTS="$RUNOPTS -l"
+    RUNOPTS="$RUNOPTS -w WINPATH"
+    RUNOPTS="$RUNOPTS -w WSL_INTEROP"
+    RUNOPTS="$RUNOPTS -w WSL_DISTRO_NAME"
+
     # enter systemd namespace
-    exec /usr/bin/nsenter -t "${SYSTEMD_PID}" -m -p --wd="${PWD}" /sbin/runuser -s "${USHELL}" "${UNAME}" -- "${@}"
+    exec /usr/bin/nsenter -t "${SYSTEMD_PID}" -m -p --wd="${PWD}" /sbin/runuser $RUNOPTS -s "${USHELL}" "${UNAME}" -- "${@}"
     ```
 
 3. Set the fake-`bash` as our `root` user's shell
