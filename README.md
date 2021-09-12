@@ -87,27 +87,31 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
 3. Set the fake-`bash` as our `root` user's shell
 
     We need `root` level permission to get `systemd` setup and enter the environment. The way I went about solving this is to
-    have WSL2 default to the `root` user and when `wsl.exe` is executed the fake-`bash` will do the right thing.
+    have WSL2 default to the `rootwsl` (root) user and when `wsl.exe` is executed the fake-`bash` will do the right thing.
     
-    The next step in getting this working is to change the default shell for our `root` user.
+    The next step in getting this working is to change the default shell for our `rootwsl` user.
+    Edit the `/etc/passwd` file via:
     
-    Edit the `/etc/passwd` file:
-    
-    `$ vipw`
-    
-    `$ vipw -s`
-    
-    Find the line starting with `root:`, it should be the first line.
-    Add a line:
-    
-    `rootwsl:x:0:0:root:/root:/usr/local/bin/wsl2hack`
-    
-    *Never replace `/usr/bin/bash` as it is an actual binary in Ubuntu 20.04/20.10*
-    
-    Save and close this file.
-    
-    Make sure to update the primary passwd file *and* the shadow passwd file.
+    `$ sudo vipw`
 
+    Find the line starting with `root:`, it should be the first line.
+    After that line add the line:
+
+    `rootwsl:x:0:0:rootwsl:/root:/usr/local/bin/wsl2hack`
+
+    *Never replace `/usr/bin/bash` as it is an actual binary in Ubuntu 20.04/20.10*
+
+    Save and close this file.
+         
+    Edit the shadow password file via:
+
+    `$ sudo vipw -s`
+
+    Find the line starting with `root:`, it should be the first line.
+    After that line add the line:
+
+    `rootwsl:*:18677:0:99999:7:::`
+        
 4. Exit out of / close the WSL2 shell
 
     The next step is to shutdown WSL2 and to change the default user to `root`.
@@ -116,7 +120,7 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     
     ```
     > wsl --shutdown
-    > ubuntu2004.exe config --default-user root
+    > ubuntu2004.exe config --default-user rootwsl
     ```
     
 5. Re-open WSL2
