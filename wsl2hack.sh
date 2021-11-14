@@ -1,6 +1,6 @@
 #!/bin/bash
 # your WSL2 username
-UNAME="<YOURUSER>"
+UNAME="cisien"
 
 UUID=$(id -u "${UNAME}")
 UGID=$(id -g "${UNAME}")
@@ -41,5 +41,20 @@ if [[ -z ${SYSTEMD_PID} ]]; then
     fi
 fi
 
+# export WSL variables
+export WINPATH="$(echo "$PATH"|grep -o ':/mnt/c.*$'|sed 's!^:!!')"
+RUNOPTS=""
+RUNOPTS="$RUNOPTS -l"
+RUNOPTS="$RUNOPTS -w WINPATH"
+RUNOPTS="$RUNOPTS -w WSL_INTEROP"
+RUNOPTS="$RUNOPTS -w WSL_DISTRO_NAME"
+RUNOPTS="$RUNOPTS -w VSCODE_WSL_EXT_LOCATION"
+RUNOPTS="$RUNOPTS -w HOSTTYPE"
+RUNOPTS="$RUNOPTS -w LANG"
+RUNOPTS="$RUNOPTS -w NAME"
+RUNOPTS="$RUNOPTS -w WSLENV"
+RUNOPTS="$RUNOPTS -w DISPLAY"
+
+echo "${@}"
 # enter systemd namespace
-exec /usr/bin/nsenter -t "${SYSTEMD_PID}" -m -p --wd="${PWD}" /sbin/runuser -s "${USHELL}" "${UNAME}" -- "${@}"
+exec /usr/bin/nsenter -t "${SYSTEMD_PID}" -m -p --wd="${PWD}" /sbin/runuser $RUNOPTS -s "${USHELL}" "${UNAME}" -- "${@}"
