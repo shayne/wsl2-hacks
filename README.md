@@ -153,7 +153,7 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     ```sh
     # adds the WINPATH to the user's path if defined.
     if [ -n "$WINPATH" ]; then
-        PATH="${PATH};${WINPATH}"
+        PATH="$PATH:$WINPATH"
         export -n WINPATH
     fi
     ```
