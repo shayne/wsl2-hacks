@@ -20,7 +20,7 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     $ sudo chmod +x /usr/local/bin/wsl2hack
     $ sudo editor /usr/local/bin/wsl2hack
     ```
-        
+
     Add the following, be sure to replace `<YOURUSER>` with your WSL2 Linux username
 
     ```sh
@@ -90,37 +90,37 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
 
     We need `root` level permission to get `systemd` setup and enter the environment. The way I went about solving this is to
     have WSL2 default to the `root` user and when `wsl.exe` is executed the fake-`bash` will do the right thing.
-    
+
     The next step in getting this working is to change the default shell for our `root` user.
-    
+
     Edit the `/etc/passwd` file:
-    
+
     `$ vipw` - edits `/etc/passwd`
-    
+
     Find the line starting with `root:`, it should be the first line.
     Edit this line line:
-    
+
     `root:x:0:0:root:/root:/usr/local/bin/wsl2hack`
-    
+
     Save and close this file.
-    
-1. Restart WSL
+
+    1. Restart WSL
 
     The next step is to shutdown WSL2.
 
     In a PowerShell terminal run:
-    
+
     ```ps
     wsl --shutdown
     ```
-    
+
 1. Re-open WSL2
 
     Everything should be in place. Fire up WSL via the MS Terminal or just `wsl.exe`.
     You should be logged in as your normal user and `systemd` should be running
-    
+
     You can test by running the following in WSL2:
-    
+
     ```sh
     $ systemctl is-active dbus
     active
@@ -129,19 +129,19 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
 1. Create `/etc/rc.local` (optional)
 
     If you want to run certain commands when the WSL2 VM starts up, this is a useful file that's automatically ran by systemd.
-    
+
     ```shell
     $ sudo touch /etc/rc.local
     $ sudo chmod +x /etc/rc.local
     $ sudo editor /etc/rc.local
     ```
-    
+
     Add the following:
     ```sh
     #!/bin/sh -e
-    
+
     # your commands here...
-    
+
     exit 0
     ```
 
@@ -167,32 +167,32 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     curl \
     gnupg \
     lsb-release
-    
+
      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
     echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
     $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-      
+
     sudo apt-get update
     sudo apt-get install docker-ce docker-ce-cli containerd.io
     ```
 1. Update Systemd and docker-daemon to listen on tcp
     * `/etc/docker/daemon.json`
-    ```json
-    {
-      "hosts": [
-        "tcp://0.0.0.0:2375",
-        "unix:///var/run/docker.sock"
-      ]
-    }
-    ```
+        ```json
+        {
+          "hosts": [
+            "tcp://0.0.0.0:2375",
+            "unix:///var/run/docker.sock"
+          ]
+        }
+        ```
     * `/etc/systemd/system/docker.service.d/override.conf`
-    ```conf
-    [Service]
-    ExecStart=
-    ExecStart=/usr/bin/dockerd
-    ```
+        ```conf
+        [Service]
+        ExecStart=
+        ExecStart=/usr/bin/dockerd
+        ```
 1. In windows, set the `DOCKER_HOST` env var to `tcp://localhost:2375`
 1. Add a scheduled task to run on login:
     ```ps
