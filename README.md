@@ -26,7 +26,7 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     ```sh
     #!/bin/bash
     # your WSL2 username
-    UNAME="cisien"
+    UNAME="<YOURUSER>"
 
     UUID=$(id -u "${UNAME}")
     UGID=$(id -g "${UNAME}")
