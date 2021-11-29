@@ -1,6 +1,6 @@
 #!/bin/bash
 # your WSL2 username
-UNAME="cisien"
+UNAME="<YOURUSER>"
 
 UUID=$(id -u "${UNAME}")
 UGID=$(id -g "${UNAME}")
