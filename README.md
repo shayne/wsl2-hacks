@@ -113,11 +113,12 @@ With this setup your shells will be able to run `systemctl` commands, have auto-
     The next step is to shutdown WSL2 and to change the default user to `root`.
 
     In a PowerShell terminal run:
-    
+    (for example, if your version is ubuntu 20.04)
     ```
-    > wsl --shutdown
-    > ubuntu config --default-user root
+    > wsl --shutdown 
+    > ubuntu2004 config --default-user root
     ```
+    Modify the `ubuntu...` command accordingly. 
     
 5. Re-open WSL2
 
